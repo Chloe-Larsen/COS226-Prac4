@@ -1,10 +1,11 @@
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException 
-    {
+    private static final boolean DEBUG_PRINT = true;
+
+    public static void main(String[] args) throws InterruptedException {
 
         CoarseList list = new CoarseList();
-        /*FineList list = new FineList();*/
+        /* FineList list = new FineList(); */
 
         int numberOfThreads = 2;
         int operationsPerThread = 1000;
@@ -13,37 +14,37 @@ public class Main {
 
         long startTime = System.nanoTime();
 
-        for(int i = 0; i < numberOfThreads; i++) 
-        {
+        for (int i = 0; i < numberOfThreads; i++) {
 
             final int threadID = i;
 
             threads[i] = new Thread(() -> {
-
-                for(int j = 0; j < operationsPerThread; j++) 
-                {
+                for (int j = 0; j < operationsPerThread; j++) {
                     int value = (threadID * 1000) + (j % 1000);
 
-                    if(j % 3 == 0) 
-                    {
-                        list.add(value);
+                    if (j % 3 == 0) {
+                        boolean success = list.add(value);
+                        if (DEBUG_PRINT)
+                            System.out.println(
+                                    Thread.currentThread().threadId() + " | Adding: " + value + ", " + success);
+                    } else if (j % 3 == 1) {
+                        boolean contains = list.contains(value);
+                        if (DEBUG_PRINT)
+                            System.out.println(
+                                    Thread.currentThread().threadId() + " | Contains: " + value + ", " + contains);
+                    } else {
+                        boolean success = list.remove(value);
+                        if (DEBUG_PRINT)
+                            System.out.println(
+                                    Thread.currentThread().threadId() + " | Removing: " + value + ", " + success);
                     }
-                    else if(j % 3 == 1) 
-                    {
-                        list.contains(value);
-                    }
-                    else 
-                    {
-                        list.remove(value);
-                    }  
                 }
             });
 
             threads[i].start();
         }
 
-        for(Thread thread : threads) 
-        {
+        for (Thread thread : threads) {
             thread.join();
         }
 
