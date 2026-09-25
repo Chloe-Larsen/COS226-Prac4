@@ -4,8 +4,8 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        CoarseList list = new CoarseList();
-        /* FineList list = new FineList(); */
+        // CoarseList list = new CoarseList();
+         FineList list = new FineList();
 
         int numberOfThreads = 2;
         int operationsPerThread = 1000;
