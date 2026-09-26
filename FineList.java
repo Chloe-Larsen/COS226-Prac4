@@ -53,8 +53,7 @@ public class FineList {
                     current.lock.lock();
                 }
                 if (current.value != value)
-                    return false;
-                Node node = new Node(value);                
+                    return false;                             
                 predecessor.next = current.next;
                 return true;
             } finally {
