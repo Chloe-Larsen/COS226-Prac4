@@ -1,14 +1,27 @@
 public class Main {
 
-    private static final boolean DEBUG_PRINT = true;
+    private static final boolean DEBUG_PRINT = false;
 
     public static void main(String[] args) throws InterruptedException {
 
-        // CoarseList list = new CoarseList();
-         FineList list = new FineList();
-
-        int numberOfThreads = 2;
         int operationsPerThread = 1000;
+        int[] threadCounts = {2, 4, 8, 16};
+
+        System.out.printf("%-8s %-20s %-20s%n",
+                "Threads", "Coarse-Grained (ms)", "Fine-Grained (ms)");
+        System.out.println("--------------------------------------------------");
+
+        for (int threads : threadCounts) {
+
+            long coarse = runExperiment(new CoarseList(), threads, operationsPerThread);
+            long fine   = runExperiment(new FineList(),   threads, operationsPerThread);
+
+            System.out.printf("%-8d %-20d %-20d%n", threads, coarse, fine);
+        }
+    }
+
+    private static long runExperiment(Object list, int numberOfThreads, int operationsPerThread)
+            throws InterruptedException {
 
         Thread[] threads = new Thread[numberOfThreads];
 
@@ -23,20 +36,20 @@ public class Main {
                     int value = (threadID * 1000) + (j % 1000);
 
                     if (j % 3 == 0) {
-                        boolean success = list.add(value);
+                        boolean success = add(list, value);
                         if (DEBUG_PRINT)
-                            System.out.println(
-                                    Thread.currentThread().threadId() + " | Adding: " + value + ", " + success);
+                            System.out.println(Thread.currentThread().threadId()
+                                    + " | Adding: " + value + ", " + success);
                     } else if (j % 3 == 1) {
-                        boolean contains = list.contains(value);
+                        boolean contains = contains(list, value);
                         if (DEBUG_PRINT)
-                            System.out.println(
-                                    Thread.currentThread().threadId() + " | Contains: " + value + ", " + contains);
+                            System.out.println(Thread.currentThread().threadId()
+                                    + " | Contains: " + value + ", " + contains);
                     } else {
-                        boolean success = list.remove(value);
+                        boolean success = remove(list, value);
                         if (DEBUG_PRINT)
-                            System.out.println(
-                                    Thread.currentThread().threadId() + " | Removing: " + value + ", " + success);
+                            System.out.println(Thread.currentThread().threadId()
+                                    + " | Removing: " + value + ", " + success);
                     }
                 }
             });
@@ -50,7 +63,22 @@ public class Main {
 
         long endTime = System.nanoTime();
 
-        double executionTime = (endTime - startTime) / 1000000;
-        System.out.println("Execution time: " + executionTime + " ms");
+        return (endTime - startTime) / 1_000_000; // ns to ms
+    }
+
+
+    private static boolean add(Object list, int value) {
+        if (list instanceof CoarseList) return ((CoarseList) list).add(value);
+        return ((FineList) list).add(value);
+    }
+
+    private static boolean remove(Object list, int value) {
+        if (list instanceof CoarseList) return ((CoarseList) list).remove(value);
+        return ((FineList) list).remove(value);
+    }
+
+    private static boolean contains(Object list, int value) {
+        if (list instanceof CoarseList) return ((CoarseList) list).contains(value);
+        return ((FineList) list).contains(value);
     }
 }
